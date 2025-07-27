@@ -1,62 +1,41 @@
 package org.example.service;
 
-import org.example.dao.UserDao;
-import org.example.entity.User;
+import org.example.entity.UserEntity;
 import org.example.exception.UserNotFoundException;
-import org.example.exception.UserServiceException;
-import org.springframework.util.Assert;
+import org.example.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.List;
 
+@Service
 public class UserService {
-    private final UserDao userDao;
 
-    public UserService(UserDao userDao) {
-        this.userDao = userDao;
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public User createUser(String username) {
-        try {
-            return userDao.save(new User(username));
-        } catch (SQLException e) {
-            throw new UserServiceException("Failed to create user with username %s".formatted(username), e);
-        }
+    public UserEntity createUser(String username) {
+        return userRepository.save(new UserEntity(username));
     }
 
-    public User findById(Long id) {
-        Assert.notNull(id, "The given id must not be null");
-        try {
-            return userDao.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-        } catch (SQLException e) {
-            throw new UserServiceException("Failed to get user with id = %d".formatted(id), e);
-        }
+    public UserEntity findById(Long id) {
+       return userRepository.findById(id)
+               .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    public List<User> getAllUsers() {
-        try {
-            return userDao.findAll();
-        } catch (SQLException e) {
-            throw new UserServiceException("Failed to get users", e);
-        }
+    public List<UserEntity> getAllUsers() {
+        return userRepository.findAll();
     }
 
     public void deleteUserById(Long id) {
-        Assert.notNull(id, "The given id must not be null");
-        try {
-            userDao.delete(this.findById(id));
-        } catch (SQLException e) {
-            throw new UserServiceException("Failed to delete user with id = %d".formatted(id), e);
-        }
+        userRepository.deleteById(id);
     }
 
-    public User updateUser(User user) {
-        this.findById(user.getId());
-        try {
-            return userDao.update(user);
-        } catch (SQLException e) {
-            throw new UserServiceException("Failed to update user with id = %d".formatted(user.getId()), e);
-        }
+    public UserEntity updateUser(UserEntity user) {
+        findById(user.getId());
+        return userRepository.save(user);
     }
 }
 
