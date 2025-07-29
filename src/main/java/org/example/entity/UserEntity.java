@@ -1,70 +1,32 @@
 package org.example.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Objects;
+import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 @Entity
 @Table(name = "users")
-public class UserEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class UserEntity extends BaseEntity<Long> {
 
     @Column(name = "username", unique = true)
     private String username;
 
-    public UserEntity() {}
-
-    public UserEntity(Long id, String username) {
-        this.id = id;
-        this.username = username;
-    }
-
-    public UserEntity(String username) {
-        this.username = username;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (!(o instanceof UserEntity)) {
-            return false;
-        }
-
-        final var other = (UserEntity) o;
-
-        return id != null && id.equals(other.getId());
-    }
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<ProductEntity> products;
 
     @Override
     public String toString() {
-        return "User{id=" + id + ", username='" + username + "'}";
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
+        return "User{id=" + this.getId() + ", username='" + username + "'}";
     }
 }
 
